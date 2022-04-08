@@ -45,7 +45,7 @@ class backgroundState extends State<Background>
       child: Container(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
-        color: Colors.red,
+        color: Colors.green,
       ),
       builder: (context, value, child) {
         return ClipPath(clipper: Custom(value), child: child);

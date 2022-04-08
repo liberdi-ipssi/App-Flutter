@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
@@ -91,14 +93,9 @@ class messageState extends State<messagePage> {
         body: blocMessage());
   }
 
-  void clearText() {
-    fieldText.clear();
-  }
-
   convertTimeStamp(Timestamp timestamp) {
     DateTime date = timestamp.toDate();
-    String time =
-        "${date.year}/${date.month}/${date.day} ${date.hour}:${date.minute}";
+    String time = "${date.day}/${date.month} ${date.hour}:${date.minute}";
     return time;
   }
 
@@ -139,37 +136,59 @@ class messageState extends State<messagePage> {
                 .sort(((a, b) => a["HEURE"].compareTo(b["HEURE"])));
             return Stack(
               children: <Widget>[
-                ListView.builder(
-                  itemCount: listOfDocumentSnapshot.length,
-                  shrinkWrap: true,
-                  padding: EdgeInsets.only(top: 10, bottom: 10),
-                  physics: NeverScrollableScrollPhysics(),
-                  itemBuilder: (context, index) {
-                    return Container(
-                      padding: EdgeInsets.only(
-                          left: 14, right: 14, top: 10, bottom: 10),
-                      child: Align(
-                        alignment: (listOfDocumentSnapshot[index]["UIDEXP"] ==
-                                widget.uidDestinataire
-                            ? Alignment.topLeft
-                            : Alignment.topRight),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: (listOfDocumentSnapshot[index]["UIDEXP"] ==
-                                    widget.uidDestinataire
-                                ? Colors.grey.shade200
-                                : Colors.blue[200]),
-                          ),
-                          padding: EdgeInsets.all(16),
-                          child: Text(
-                            listOfDocumentSnapshot[index]["MSG"],
-                            style: TextStyle(fontSize: 15),
+                Scrollbar(
+                  child: ListView.builder(
+                    itemCount: listOfDocumentSnapshot.length,
+                    shrinkWrap: true,
+                    padding: EdgeInsets.only(top: 10, bottom: 10),
+                    physics: NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      return Container(
+                        padding: EdgeInsets.only(
+                            left: 14, right: 14, top: 10, bottom: 10),
+                        child: Align(
+                          alignment: (listOfDocumentSnapshot[index]["UIDEXP"] ==
+                                  widget.uidDestinataire
+                              ? Alignment.topLeft
+                              : Alignment.topRight),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: (listOfDocumentSnapshot[index]["UIDEXP"] ==
+                                      widget.uidDestinataire
+                                  ? Colors.grey.shade200
+                                  : Colors.blue[200]),
+                            ),
+                            padding: EdgeInsets.all(16),
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(),
+                                  child: Text(
+                                    convertTimeStamp(
+                                        listOfDocumentSnapshot[index]["HEURE"]),
+                                    style: TextStyle(fontSize: 15),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 2.5,
+                                ),
+                                Container(
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(),
+                                    child: Text(
+                                      listOfDocumentSnapshot[index]["MSG"],
+                                      style: TextStyle(fontSize: 15),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
                 Align(
                   alignment: Alignment.bottomLeft,
@@ -190,7 +209,7 @@ class messageState extends State<messagePage> {
                               borderRadius: BorderRadius.circular(30),
                             ),
                             child: Icon(
-                              Icons.add,
+                              Icons.message,
                               color: Colors.white,
                               size: 20,
                             ),
@@ -201,15 +220,21 @@ class messageState extends State<messagePage> {
                         ),
                         Expanded(
                           child: TextField(
+                            controller: fieldText,
                             onChanged: (value) {
                               setState(() {
                                 message = value;
                               });
                             },
                             decoration: InputDecoration(
-                                hintText: "Ecrivez votre message",
-                                hintStyle: TextStyle(color: Colors.black54),
-                                border: InputBorder.none),
+                              hintText: "Ecrivez votre message",
+                              hintStyle: TextStyle(color: Colors.black54),
+                              border: InputBorder.none,
+                              suffixIcon: IconButton(
+                                onPressed: () => fieldText.clear(),
+                                icon: Icon(Icons.clear),
+                              ),
+                            ),
                           ),
                         ),
                         SizedBox(
@@ -222,7 +247,7 @@ class messageState extends State<messagePage> {
                                 widget.uidDestinataire,
                                 message,
                                 DateTime.now());
-                            clearText();
+                            fieldText.clear();
                           },
                           child: Icon(
                             Icons.send,
@@ -243,47 +268,8 @@ class messageState extends State<messagePage> {
   }
 
   Widget bodyPage() {
-    // bloc appelé + textinput + button
     return Container(
       child: blocMessage(),
     );
-
-    /* Row(children: [
-        Container(
-          margin: const EdgeInsets.only(left: 2.5, top: 2.5),
-          width: MediaQuery.of(context).size.width / 1.25,
-          child: TextField(
-            controller: fieldText,
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.message),
-              hintText: "Taper votre message",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            onChanged: (value) {
-              setState(() {
-                message = value;
-              });
-            },
-          ),
-        ),
-        const SizedBox(
-          width: 5,
-        ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-              fixedSize: const Size(40, 55),
-              primary: Colors.blue,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10))),
-          onPressed: () {
-            FirestoreHelper().newMessage(widget.uidExpediteur,
-                widget.uidDestinataire, message, DateTime.now());
-            clearText();
-          },
-          child: const Icon(Icons.send),
-        ),
-      ]) */
   }
 }
