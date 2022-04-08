@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_application_1/detailPage.dart';
 import 'package:flutter_application_1/fonctions/firestoreHelper.dart';
 import 'package:flutter_application_1/library/constants.dart';
+import 'package:flutter_application_1/messagePage.dart';
 import 'package:flutter_application_1/model/utilisateur.dart';
 import 'package:flutter_application_1/widgets/myDrawer.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +29,7 @@ class DashBoardState extends State<DashBoard> {
         child: myDrawer(),
       ),
       appBar: AppBar(
-        title: const Text("Ma Nouvelle page"),
+        title: const Text("Contact"),
       ),
       body: bodyPage(),
     );
@@ -72,7 +73,10 @@ class DashBoardState extends State<DashBoard> {
                       onTap: () {
                         Navigator.push(context,
                             MaterialPageRoute(builder: (context) {
-                          return detailPage(user: user);
+                          return messagePage(
+                              uidExpediteur: monProfil.uid,
+                              user: "${user.prenom} ${user.nom}",
+                              uidDestinataire: user.uid);
                         }));
                       },
                     ),

@@ -65,11 +65,6 @@ class detailState extends State<detailPage> {
                 });
               });
             });
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return messagePage(
-                  uidExpediteur: monProfil.uid,
-                  uidDestinataire: widget.user.uid);
-            }));
           },
           child: const Text("Envoyer un message")),
     ]);
